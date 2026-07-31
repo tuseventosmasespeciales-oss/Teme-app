@@ -1,0 +1,475 @@
+<write_to_file>
+<path>index.html</path>
+<content><!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Merch Personalizado España</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6d28d9">
+<link rel="icon" href="icon-192.png">
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script src="editor.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+body { background: #f5f3ff; color: #1f2937; padding-bottom: 100px; }
+header { background: linear-gradient(135deg, #6d28d9, #7c3aed); color: white; padding: 24px 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+header h1 { font-size: 1.8rem; margin-bottom: 4px; }
+header p { opacity: .9; font-size: .95rem; }
+nav { background: white; padding: 12px 20px; display: flex; gap: 16px; justify-content: center; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
+nav a { color: #6d28d9; text-decoration: none; font-weight: 600; padding: 6px 12px; border-radius: 8px; transition: background .2s; }
+nav a:hover { background: #f5f3ff; }
+.filtros { display: flex; gap: 8px; padding: 16px; overflow-x: auto; background: white; border-bottom: 1px solid #e5e7eb; }
+.filtro-btn { padding: 8px 16px; border: 2px solid #6d28d9; background: white; color: #6d28d9; border-radius: 20px; cursor: pointer; white-space: nowrap; font-weight: 500; transition: all .2s; }
+.filtro-btn.active, .filtro-btn:hover { background: #6d28d9; color: white; }
+.productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; padding: 20px; }
+.card { background: white; border-radius: 16px; padding: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.08); transition: transform .2s; cursor: pointer; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.card-img { width: 100%; height: 140px; background: linear-gradient(135deg, #e0e7ff, #f3e8ff); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 4rem; margin-bottom: 12px; }
+.card h3 { font-size: 1.1rem; margin-bottom: 4px; }
+.card .precio { color: #6d28d9; font-weight: bold; font-size: 1.2rem; margin-bottom: 12px; }
+.card button { width: 100%; padding: 10px; background: #6d28d9; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; transition: background .2s; }
+.card button:hover { background: #5b21b6; }
+.cart { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 16px; border-top: 2px solid #6d28d9; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -4px 12px rgba(0,0,0,.1); z-index: 100; }
+.cart-info { flex: 1; }
+.cart-info span { display: block; font-size: .9rem; color: #6b7280; }
+.cart-info b { font-size: 1.3rem; color: #6d28d9; }
+.cart button { background: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6); align-items: center; justify-content: center; padding: 20px; z-index: 200; overflow-y: auto; }
+.modal.active { display: flex; }
+.modal-content { background: white; padding: 24px; border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+.modal-content h2 { margin-bottom: 16px; color: #6d28d9; }
+.modal-content label { display: block; margin: 12px 0 6px; font-weight: 600; color: #374151; }
+.modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem; }
+.opciones-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; margin: 8px 0; }
+.opcion-btn { padding: 10px; border: 2px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer; text-align: center; transition: all .2s; }
+.opcion-btn.selected { border-color: #6d28d9; background: #f5f3ff; color: #6d28d9; font-weight: 600; }
+.file-upload { border: 2px dashed #6d28d9; border-radius: 10px; padding: 20px; text-align: center; cursor: pointer; background: #f5f3ff; }
+.file-upload:hover { background: #ede9fe; }
+.preview-img { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 12px; }
+.btn-primary { width: 100%; padding: 14px; background: #10b981; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; margin-top: 16px; cursor: pointer; }
+.btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+.btn-secondary { width: 100%; padding: 12px; background: #e5e7eb; border: none; border-radius: 10px; margin-top: 8px; cursor: pointer; }
+.btn-editor { width: 100%; padding: 12px; background: #6d28d9; color: white; border: none; border-radius: 10px; margin-top: 8px; cursor: pointer; font-weight: 600; }
+.cantidad-control { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+.cantidad-control button { width: 36px; height: 36px; border: 2px solid #6d28d9; background: white; color: #6d28d9; border-radius: 8px; font-size: 1.2rem; cursor: pointer; font-weight: bold; }
+.cantidad-control input { width: 60px; text-align: center; padding: 8px; border: 2px solid #e5e7eb; border-radius: 8px; }
+.descuento { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 8px; margin: 12px 0; font-size: .9rem; }
+.editor-container { background: #f9fafb; padding: 16px; border-radius: 12px; margin: 12px 0; }
+.editor-container canvas { width: 100%; height: auto; border: 2px solid #6d28d9; border-radius: 8px; background: white; cursor: move; max-height: 400px; }
+.editor-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+.editor-controls label { font-size: .85rem; margin: 0; }
+.editor-controls input[type=range] { width: 100%; }
+.editor-buttons { display: flex; gap: 8px; margin-top: 12px; }
+.editor-buttons button { flex: 1; padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<header>
+<h1>🎨 Merch Personalizado</h1>
+<p>Crea productos únicos para tu marca</p>
+</header>
+
+<nav>
+<a href="#productos">🛍️ Tienda</a>
+<a href="galeria.html">📸 Galería</a>
+<a href="admin.html">🔐 Admin</a>
+</nav>
+
+<div class="filtros" id="productos">
+<button class="filtro-btn active" onclick="filtrar('todos', this)">Todos</button>
+<button class="filtro-btn" onclick="filtrar('textil', this)">Textil</button>
+<button class="filtro-btn" onclick="filtrar('accesorios', this)">Accesorios</button>
+<button class="filtro-btn" onclick="filtrar('drinkware', this)">Drinkware</button>
+</div>
+
+<section class="productos" id="productosGrid"></section>
+
+<div class="cart">
+<div class="cart-info">
+<span>🛒 Carrito: <b id="contador">0</b> artículos</span>
+<span>Total: <b id="total">0,00 €</b></span>
+</div>
+<button onclick="finalizar()">Pagar</button>
+</div>
+
+<!-- Modal personalización -->
+<div class="modal" id="modalPersonalizar">
+<div class="modal-content">
+<h2 id="modalTitulo">Personalizar producto</h2>
+<div id="modalContenido"></div>
+</div>
+</div>
+
+<!-- Modal editor visual -->
+<div class="modal" id="modalEditor">
+<div class="modal-content" style="max-width:700px;">
+<h2>🎨 Editor de diseño</h2>
+<p style="color:#6b7280;margin-bottom:12px;">Arrastra, redimensiona y rota tu logo sobre el producto</p>
+<div class="editor-container">
+<canvas id="editorCanvas"></canvas>
+<div class="editor-controls">
+<div>
+<label>Rotación: <span id="rotVal">0°</span></label>
+<input type="range" id="rotacion" min="-180" max="180" value="0" oninput="editor.setRotation(this.value);document.getElementById('rotVal').textContent=this.value+'°'">
+</div>
+<div>
+<label>Opacidad: <span id="opaVal">100%</span></label>
+<input type="range" id="opacidad" min="0" max="100" value="100" oninput="editor.setOpacity(this.value/100);document.getElementById('opaVal').textContent=this.value+'%'">
+</div>
+</div>
+<div class="editor-buttons">
+<button onclick="editor.resetPosition()" style="background:#6b7280;color:white;">↺ Centrar</button>
+<button onclick="guardarPosicion()" style="background:#10b981;color:white;">✓ Guardar posición</button>
+</div>
+</div>
+<button class="btn-secondary" onclick="cerrarModal('modalEditor')">Cerrar</button>
+</div>
+</div>
+
+<!-- Modal finalizar -->
+<div class="modal" id="modalPedido">
+<div class="modal-content">
+<h2>Finalizar pedido</h2>
+<label>Nombre completo *</label>
+<input id="nombre" placeholder="Tu nombre">
+<label>Email *</label>
+<input id="email" type="email" placeholder="tu@email.com">
+<label>WhatsApp / Teléfono *</label>
+<input id="whatsapp" placeholder="+34 600 000 000">
+<label>Empresa (opcional)</label>
+<input id="empresa" placeholder="Nombre de tu empresa">
+<label>Dirección de envío *</label>
+<textarea id="direccion" placeholder="Calle, número, piso, código postal, ciudad" rows="2"></textarea>
+<label>Notas adicionales</label>
+<textarea id="notas" placeholder="Detalles especiales, plazos de entrega, etc." rows="3"></textarea>
+<button class="btn-primary" id="btnEnviar" onclick="irAPagar()">Continuar al pago →</button>
+<button class="btn-secondary" onclick="cerrarModal('modalPedido')">Cancelar</button>
+</div>
+</div>
+
+<script>
+// ⚠️ CONFIGURA EMAILJS
+const EMAILJS_PUBLIC_KEY = 'TU_PUBLIC_KEY';
+const EMAILJS_SERVICE_ID = 'TU_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = 'TU_TEMPLATE_ID';
+
+if (EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY') {
+emailjs.init(EMAILJS_PUBLIC_KEY);
+}
+
+const productos = [
+{ id:1, nombre:"Camiseta", precio:12, categoria:"textil", img:"👕", tallas:["XS","S","M","L","XL","XXL"], colores:["Blanco","Negro","Gris","Azul marino"], productoImg:"👕" },
+{ id:2, nombre:"Sudadera", precio:25, categoria:"textil", img:"🧥", tallas:["S","M","L","XL","XXL"], colores:["Negro","Gris","Azul marino","Burdeos"], productoImg:"🧥" },
+{ id:3, nombre:"Gorra", precio:9, categoria:"accesorios", img:"🧢", colores:["Negro","Blanco","Azul marino","Rojo"], productoImg:"🧢" },
+{ id:4, nombre:"Taza 11oz", precio:6, categoria:"drinkware", img:"☕", colores:["Blanco","Negro"], productoImg:"☕" },
+{ id:5, nombre:"Lanyard", precio:2.5, categoria:"accesorios", img:"🎗️", colores:["Negro","Azul","Rojo","Verde"], productoImg:"🎗️" },
+{ id:6, nombre:"Llavero Lanyard", precio:3.5, categoria:"accesorios", img:"🔑", colores:["Negro","Azul","Rojo"], productoImg:"🔑" },
+{ id:7, nombre:"Mochila cuerdas", precio:4, categoria:"accesorios", img:"🎒", colores:["Blanco","Negro","Azul"], productoImg:"🎒" },
+{ id:8, nombre:"Bolsa tote", precio:5, categoria:"accesorios", img:"👜", colores:["Natural","Negro"], productoImg:"👜" },
+{ id:9, nombre:"Polo", precio:18, categoria:"textil", img:"👔", tallas:["S","M","L","XL","XXL"], colores:["Blanco","Negro","Azul marino"], productoImg:"👔" },
+{ id:10, nombre:"Chaqueta softshell", precio:35, categoria:"textil", img:"🧥", tallas:["S","M","L","XL"], colores:["Negro","Azul marino"], productoImg:"🧥" }
+];
+
+let carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+let productoActual = null;
+let opcionesSeleccionadas = {};
+let cantidad = 1;
+let archivoSubido = null;
+let posicionLogo = null;
+let editor = null;
+
+function formatearPrecio(num) {
+return num.toFixed(2).replace('.', ',') + ' €';
+}
+
+function calcularDescuento(cantidad) {
+if (cantidad >= 100) return { descuento: 0.20, texto: '20% dto. (+100 uds)' };
+if (cantidad >= 50) return { descuento: 0.15, texto: '15% dto. (+50 uds)' };
+if (cantidad >= 25) return { descuento: 0.10, texto: '10% dto. (+25 uds)' };
+return null;
+}
+
+function render(filtro = 'todos') {
+const cont = document.getElementById('productosGrid');
+const productosFiltrados = filtro === 'todos' ? productos : productos.filter(p => p.categoria === filtro);
+
+cont.innerHTML = productosFiltrados.map(p => `
+<div class="card">
+<div class="card-img">${p.img}</div>
+<h3>${p.nombre}</h3>
+<div class="precio">desde ${formatearPrecio(p.precio)}</div>
+<button onclick="abrirPersonalizacion(${p.id})">Personalizar</button>
+</div>
+`).join('');
+
+document.getElementById('contador').textContent = carrito.length;
+document.getElementById('total').textContent = formatearPrecio(carrito.reduce((s,i) => s + i.precioTotal, 0));
+}
+
+function filtrar(categoria, btn) {
+document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+btn.classList.add('active');
+render(categoria);
+}
+
+function abrirPersonalizacion(id) {
+productoActual = productos.find(p => p.id === id);
+opcionesSeleccionadas = {};
+cantidad = 1;
+archivoSubido = null;
+posicionLogo = null;
+
+document.getElementById('modalTitulo').textContent = `Personalizar ${productoActual.nombre}`;
+
+let html = `<p style="margin-bottom:16px;color:#6b7280;">Precio base: <b>${formatearPrecio(productoActual.precio)}</b> por unidad</p>`;
+
+if (productoActual.tallas) {
+html += `<label>Talla *</label><div class="opciones-grid">`;
+productoActual.tallas.forEach(t => {
+html += `<div class="opcion-btn" onclick="seleccionarOpcion('talla','${t}',this)">${t}</div>`;
+});
+html += `</div>`;
+}
+
+if (productoActual.colores) {
+html += `<label>Color *</label><div class="opciones-grid">`;
+productoActual.colores.forEach(c => {
+html += `<div class="opcion-btn" onclick="seleccionarOpcion('color','${c}',this)">${c}</div>`;
+});
+html += `</div>`;
+}
+
+html += `
+<label>Cantidad</label>
+<div class="cantidad-control">
+<button onclick="cambiarCantidad(-1)">−</button>
+<input type="number" id="cantidad" value="1" min="1" onchange="actualizarCantidad(this.value)">
+<button onclick="cambiarCantidad(1)">+</button>
+</div>
+<div id="descuentoInfo"></div>
+
+<label>Texto personalizado (opcional)</label>
+<input id="textoPersonalizado" placeholder="Ej: Nombre, frase, número...">
+
+<label>Logo o diseño (opcional)</label>
+<div class="file-upload" onclick="document.getElementById('fileInput').click()">
+📎 Haz clic para subir tu logo/diseño
+<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="subirArchivo(event)">
+</div>
+<div id="previewContainer"></div>
+<div id="editorBtnContainer"></div>
+
+<button class="btn-primary" onclick="agregarAlCarrito()">Añadir al carrito</button>
+<button class="btn-secondary" onclick="cerrarModal('modalPersonalizar')">Cancelar</button>
+`;
+
+document.getElementById('modalContenido').innerHTML = html;
+document.getElementById('modalPersonalizar').classList.add('active');
+actualizarDescuento();
+}
+
+function seleccionarOpcion(tipo, valor, elem) {
+opcionesSeleccionadas[tipo] = valor;
+elem.parentElement.querySelectorAll('.opcion-btn').forEach(btn => btn.classList.remove('selected'));
+elem.classList.add('selected');
+}
+
+function cambiarCantidad(delta) {
+cantidad = Math.max(1, cantidad + delta);
+document.getElementById('cantidad').value = cantidad;
+actualizarDescuento();
+}
+
+function actualizarCantidad(val) {
+cantidad = Math.max(1, parseInt(val) || 1);
+document.getElementById('cantidad').value = cantidad;
+actualizarDescuento();
+}
+
+function actualizarDescuento() {
+const dto = calcularDescuento(cantidad);
+const cont = document.getElementById('descuentoInfo');
+if (dto) {
+const precioConDto = productoActual.precio * (1 - dto.descuento);
+cont.innerHTML = `<div class="descuento">✅ ${dto.texto}<br>Precio unitario: <b>${formatearPrecio(precioConDto)}</b></div>`;
+} else {
+cont.innerHTML = `<div class="descuento" style="background:#dbeafe;border-color:#3b82f6;">💡 Compra 25+ unidades y obtén descuentos</div>`;
+}
+}
+
+function subirArchivo(event) {
+const file = event.target.files[0];
+if (file) {
+const reader = new FileReader();
+reader.onload = function(e) {
+archivoSubido = { nombre: file.name, data: e.target.result };
+document.getElementById('previewContainer').innerHTML = `
+<img src="${e.target.result}" class="preview-img">
+<p style="font-size:.85rem;color:#6b7280;margin-top:8px;">✅ ${file.name}</p>
+`;
+document.getElementById('editorBtnContainer').innerHTML = `
+<button class="btn-editor" onclick="abrirEditor()">🎨 Abrir editor visual (posicionar logo)</button>
+`;
+};
+reader.readAsDataURL(file);
+}
+}
+
+async function abrirEditor() {
+if (!archivoSubido) return alert('Primero sube un logo');
+
+cerrarModal('modalPersonalizar');
+document.getElementById('modalEditor').classList.add('active');
+
+// Inicializar editor
+editor = new MerchEditor('editorCanvas');
+
+// Crear imagen de producto (placeholder con emoji grande)
+const canvas = document.getElementById('editorCanvas');
+canvas.width = 600;
+canvas.height = 600;
+const ctx = canvas.getContext('2d');
+
+// Fondo con gradiente
+const grad = ctx.createLinearGradient(0, 0, 600, 600);
+grad.addColorStop(0, '#e0e7ff');
+grad.addColorStop(1, '#f3e8ff');
+ctx.fillStyle = grad;
+ctx.fillRect(0, 0, 600, 600);
+
+// Emoji del producto
+ctx.font = '200px serif';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText(productoActual.productoImg, 300, 300);
+
+// Texto indicativo
+ctx.font = 'bold 24px system-ui';
+ctx.fillStyle = '#6d28d9';
+ctx.fillText(productoActual.nombre, 300, 550);
+
+// Guardar como imagen para el editor
+const productDataUrl = canvas.toDataURL();
+
+await editor.loadProductImage(productDataUrl);
+await editor.loadLogo(archivoSubido.data);
+
+// Resetear controles
+document.getElementById('rotacion').value = 0;
+document.getElementById('opacidad').value = 100;
+document.getElementById('rotVal').textContent = '0°';
+document.getElementById('opaVal').textContent = '100%';
+}
+
+function guardarPosicion() {
+posicionLogo = editor.getPosition();
+cerrarModal('modalEditor');
+document.getElementById('modalPersonalizar').classList.add('active');
+document.getElementById('editorBtnContainer').innerHTML = `
+<div style="background:#d1fae5;padding:12px;border-radius:8px;margin-top:8px;">
+✅ Posición del logo guardada
+<button class="btn-editor" onclick="abrirEditor()" style="margin-top:8px;">🎨 Modificar posición</button>
+</div>
+`;
+}
+
+function agregarAlCarrito() {
+if (productoActual.tallas && !opcionesSeleccionadas.talla) return alert('Selecciona una talla');
+if (productoActual.colores && !opcionesSeleccionadas.color) return alert('Selecciona un color');
+
+const dto = calcularDescuento(cantidad);
+const precioUnit = dto ? productoActual.precio * (1 - dto.descuento) : productoActual.precio;
+const precioTotal = precioUnit * cantidad;
+
+const item = {
+id: Date.now(),
+productoId: productoActual.id,
+nombre: productoActual.nombre,
+precioUnit,
+cantidad,
+precioTotal,
+opciones: { ...opcionesSeleccionadas },
+texto: document.getElementById('textoPersonalizado').value,
+archivo: archivoSubido,
+posicionLogo: posicionLogo
+};
+
+carrito.push(item);
+localStorage.setItem('carrito', JSON.stringify(carrito));
+cerrarModal('modalPersonalizar');
+render();
+alert('✅ Producto añadido al carrito');
+}
+
+function finalizar() {
+if (carrito.length === 0) return alert('Tu carrito está vacío');
+document.getElementById('modalPedido').classList.add('active');
+}
+
+function cerrarModal(id) {
+document.getElementById(id).classList.remove('active');
+}
+
+function irAPagar() {
+const nombre = document.getElementById('nombre').value;
+const email = document.getElementById('email').value;
+const wa = document.getElementById('whatsapp').value;
+const empresa = document.getElementById('empresa').value;
+const direccion = document.getElementById('direccion').value;
+const notas = document.getElementById('notas').value;
+
+if (!nombre || !email || !wa || !direccion) return alert('Completa los campos obligatorios (*)');
+
+const pedido = {
+id: Date.now(),
+fecha: Date.now(),
+estado: 'pendiente',
+cliente: { nombre, email, whatsapp: wa, empresa, direccion },
+productos: carrito,
+total: carrito.reduce((s, i) => s + i.precioTotal, 0),
+notas
+};
+
+// Guardar pedido pendiente para checkout
+localStorage.setItem('pedidoPendiente', JSON.stringify(pedido));
+
+// Enviar email de confirmación si está configurado
+if (EMAILJS_PUBLIC_KEY !== 'TU_PUBLIC_KEY') {
+const templateParams = {
+to_email: email,
+to_name: nombre,
+pedido_id: pedido.id,
+fecha: new Date().toLocaleString('es-ES'),
+productos: carrito.map(p => `${p.nombre} x${p.cantidad} - ${formatearPrecio(p.precioTotal)}`).join('\n'),
+total: formatearPrecio(pedido.total),
+direccion: direccion,
+notas: notas || 'Sin notas'
+};
+
+emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams).catch(err => {
+console.error('Error enviando email:', err);
+});
+}
+
+// Redirigir a checkout
+window.location.href = 'checkout.html';
+}
+
+render();
+
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
+</content>
+</write_to_file>
+
+<write_to_file>
+<path>INSTRUCCIONES_COMPLETAS.md</path>
+<content># 🚀 Guía completa de instalación y configuración
